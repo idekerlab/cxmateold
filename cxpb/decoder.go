@@ -2,7 +2,6 @@ package cxpb
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 	"io"
@@ -29,11 +28,11 @@ type DecoderOptions struct {
 //NewDecoder initializes and returns a JSON Decoder that decodes to a stream of protobuf elements defined in this package. NewDecoder accepts
 //a stream to read from, r, an options struct, o, and a calback function, s, that accepts a single element s that can stream the element elewhere
 //or handle it in some way. Before calling NewDecoder, a DecoderOptions struct should be made detailing the expected input from the stream.
-func NewDecoder(r io.ReadCloser, o *DecoderOptions, s func(*Element) error) *Decoder {
+func NewDecoder(r io.ReadCloser, o *DecoderOptions, streamer func(*Element) error) *Decoder {
 	d := &Decoder{
 		r:           r,
 		dec:         json.NewDecoder(r),
-		streamer:    s,
+		streamer:    streamer,
 		options:     o,
 	}
 	return d
@@ -75,7 +74,6 @@ func (dec *Decoder) decodeNetwork(networkNum int64) {
 		for d.More() { //Iterate over every element in the fragment
 			if known && required { //Convert known aspects to protobuf
 				jsonpb.UnmarshalNext(d, element)
-				fmt.Println(element)
 				dec.streamer(wrapElement(networkNum, element))
 			} else { //Consume and do nothing with known aspects
 				var v map[string]interface{}

@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
+	"io"
+	"log"
+	"net/http"
+	"os"
+	"sync"
+
 	"github.com/ericsage/cxmate/cxpb"
 	"google.golang.org/grpc"
-	"io"
-	"net/http"
-	"sync"
-	"log"
-	"os"
 )
 
 var (
@@ -27,8 +28,6 @@ var (
 	listeningPort    = getenv("LISTENING_PORT", "80")
 	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
 	serverPort       = getenv("SERVICE_PORT", "8080")
-	//requiredAspects    = getenv("REQUIRE_ASPECTS", "[]")
-	sendAspects = getenv("SEND_ASPECTS", "[]")
 )
 
 func getenv(key, fallback string) string {
@@ -62,31 +61,32 @@ func streamNetwork(network io.ReadCloser, out http.ResponseWriter) {
 	if err != nil {
 		panic("Could not open stream")
 	}
+
 	var wg sync.WaitGroup
 	wg.Add(2)
+
 	go func() {
 		defer wg.Done()
 		decOpt := &cxpb.DecoderOptions{
 			RequiredAspects: requiredAspects,
-			IsCollection: true,
-			NumNetworks: 2,
+			IsCollection:    true,
+			NumNetworks:     2,
 		}
 		decoder := cxpb.NewDecoder(network, decOpt, stream.Send)
 		decoder.Decode()
 		stream.CloseSend()
 	}()
+
 	go func() {
 		defer wg.Done()
-		//m := new(jsonpb.Marshaler)
-		for {
-			_, err := stream.Recv()
-			if err == io.EOF {
-				return
-			} else {
-				//fmt.Println(in)
-				//m.Marshal(out, in)
-			}
+		encOpt := &cxpb.EncoderOptions{
+			RequiredAspects: requiredAspects,
+			IsCollection:    true,
+			NumNetworks:     2,
 		}
+		encoder := cxpb.NewEncoder(out, encOpt, stream.Recv)
+		encoder.Encode()
 	}()
+
 	wg.Wait()
 }
