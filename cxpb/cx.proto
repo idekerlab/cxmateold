@@ -9,16 +9,17 @@ service CyService {
 message Element {
   int64 networkId = 1;
   oneof value {
-    NumberVerification numberVerification = 2;
-    MetaData metadata = 3;
-    Parameter parameter = 4;
-    AnonymousAspect aspect = 5;
-    Node node = 6;
-    Edge edge = 7;
-    NodeAttribute nodeAttribute = 8;
-    EdgeAttribute edgeAttribute = 9;
-    NetworkAttribute networkAttribute = 10;
-    CartesianLayout cartesianLayout = 11;
+    Parameter parameter = 2;
+    Error error = 3;
+    NumberVerification numberVerification = 4;
+    MetaData metadata = 5;
+    AnonymousAspect aspect = 6;
+    Node node = 7;
+    Edge edge = 8;
+    NodeAttribute nodeAttribute = 9;
+    EdgeAttribute edgeAttribute = 10;
+    NetworkAttribute networkAttribute = 11;
+    CartesianLayout cartesianLayout = 12;
   }
 }
 
@@ -33,10 +34,10 @@ message MetaData {
   int64 elementCount = 4;
   int64 consistencyGroup = 5;
   int64 checksum = 6;
-  repeated KeyValue properties = 7;
+  repeated Property properties = 7;
 }
 
-message KeyValue {
+message Property {
   string name = 1;
   string value = 2;
 }
@@ -44,6 +45,13 @@ message KeyValue {
 message Parameter {
   string name = 1;
   string value = 2;
+}
+
+message Error {
+  int64 status = 1;
+  string code = 2;
+  string message = 3;
+  string link = 4;
 }
 
 message Node {

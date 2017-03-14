@@ -2,25 +2,53 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"sync"
 
+  "github.com/ericsage/cxmate/metrics"
 	"github.com/ericsage/cxmate/cxpb"
+	"github.com/golang/protobuf/jsonpb"
+
+		"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
 )
 
 var (
 	requiredAspects = []string{
-		"metaData",
 		"edges",
 		"nodes",
 		"nodeAttributes",
-		"edgeAttributes",
-		"networkAttributes",
 	}
+	sentAspects = []string{
+		"nodeAttributes",
+	}
+)
+
+var (
+	requestsCounter = metrics.NewCounter(
+		"cxmate_requests_total",
+		"Number of total requests processed by cxmate",
+		[]string{},
+	)
+	errorCounter = metrics.NewCounter(
+		"cxmate_response_with_errors_total",
+		"Number of responses that contained at least one error",
+		[]string{},
+	)
+	errorsCounter = metrics.NewCounter(
+		"cxmate_sent_errors_total",
+		"Total number of errors sent by cxmate to clients",
+		[]string{},
+	)
+	sentParametersCounter = metrics.NewCounter(
+		"cxmate_recieved_parameter_total",
+		"Number of times each parameter key/value recieved by cxmate",
+		[]string{"name", "value"},
+	)
 )
 
 var (
@@ -40,16 +68,25 @@ func getenv(key, fallback string) string {
 
 func main() {
 	handler := CXHandler
-	http.HandleFunc("/", handler)
 	address := listeningAddress + ":" + listeningPort
-	log.Fatal(http.ListenAndServe(address, nil))
+	s := &http.Server{
+		Addr:    address,
+		Handler: http.HandlerFunc(handler),
+	}
+	fmt.Println("Listening on", address)
+	go metrics.Serve()
+	log.Fatal(s.ListenAndServe())
 }
 
+//CXHandler handles CX
 func CXHandler(res http.ResponseWriter, req *http.Request) {
-	streamNetwork(req.Body, res)
+	requestsCounter.With(prometheus.Labels{}).Inc()
+	params := req.URL.Query()
+	fmt.Println(req.URL)
+	streamNetwork(req.Body, res, params)
 }
 
-func streamNetwork(network io.ReadCloser, out http.ResponseWriter) {
+func streamNetwork(in io.Reader, out io.Writer, params map[string][]string) {
 	address := serverAddress + ":" + serverPort
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	defer conn.Close()
@@ -69,10 +106,11 @@ func streamNetwork(network io.ReadCloser, out http.ResponseWriter) {
 		defer wg.Done()
 		decOpt := &cxpb.DecoderOptions{
 			RequiredAspects: requiredAspects,
-			IsCollection:    true,
-			NumNetworks:     2,
+			IsCollection:    false,
+			NumNetworks:     1,
 		}
-		decoder := cxpb.NewDecoder(network, decOpt, stream.Send)
+		sendParams(stream.Send, params)
+		decoder := cxpb.NewDecoder(in, decOpt, stream.Send)
 		decoder.Decode()
 		stream.CloseSend()
 	}()
@@ -80,13 +118,51 @@ func streamNetwork(network io.ReadCloser, out http.ResponseWriter) {
 	go func() {
 		defer wg.Done()
 		encOpt := &cxpb.EncoderOptions{
-			RequiredAspects: requiredAspects,
-			IsCollection:    true,
-			NumNetworks:     2,
+			RequiredAspects: sentAspects,
+			IsCollection:    false,
+			NumNetworks:     1,
 		}
 		encoder := cxpb.NewEncoder(out, encOpt, stream.Recv)
-		encoder.Encode()
+		io.WriteString(out, "{\"data\":")
+		errors := encoder.Encode()
+		io.WriteString(out, ",\"errors\":[")
+		m := jsonpb.Marshaler{}
+		if len(errors) != 0 {
+			errorCounter.With(prometheus.Labels{}).Inc()
+		}
+		for index, error := range errors {
+			if index != 0 {
+				io.WriteString(out, ",")
+			}
+			m.Marshal(out, error)
+			errorsCounter.With(prometheus.Labels{}).Inc()
+		}
+		io.WriteString(out, "]}")
 	}()
 
 	wg.Wait()
+}
+
+func sendParams(streamer func(*cxpb.Element) error, params map[string][]string) {
+	for name, values := range params {
+		for _, value := range values {
+			p := &cxpb.Element{
+				NetworkId: 0,
+				Value: &cxpb.Element_Parameter{
+					Parameter: &cxpb.Parameter{
+						Name:  name,
+						Value: value,
+					},
+				},
+			}
+			err := streamer(p)
+			if err != nil {
+				panic("Could not send parameter")
+			}
+			sentParametersCounter.With(prometheus.Labels{
+				"name": name,
+				"value": value,
+			}).Inc()
+		}
+	}
 }
