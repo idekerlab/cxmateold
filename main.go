@@ -8,24 +8,14 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"strings"
 
-  "github.com/ericsage/cxmate/metrics"
 	"github.com/ericsage/cxmate/cxpb"
+	"github.com/ericsage/cxmate/metrics"
 	"github.com/golang/protobuf/jsonpb"
 
-		"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc"
-)
-
-var (
-	requiredAspects = []string{
-		"edges",
-		"nodes",
-		"nodeAttributes",
-	}
-	sentAspects = []string{
-		"nodeAttributes",
-	}
 )
 
 var (
@@ -56,6 +46,8 @@ var (
 	listeningPort    = getenv("LISTENING_PORT", "80")
 	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
 	serverPort       = getenv("SERVICE_PORT", "8080")
+	requiredAspects  = strings.Split(getenv("REQUIRED_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	sendingAspects  =  strings.Split(getenv("REQUIRED_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
 )
 
 func getenv(key, fallback string) string {
@@ -82,7 +74,6 @@ func main() {
 func CXHandler(res http.ResponseWriter, req *http.Request) {
 	requestsCounter.With(prometheus.Labels{}).Inc()
 	params := req.URL.Query()
-	fmt.Println(req.URL)
 	streamNetwork(req.Body, res, params)
 }
 
@@ -117,8 +108,13 @@ func streamNetwork(in io.Reader, out io.Writer, params map[string][]string) {
 
 	go func() {
 		defer wg.Done()
+		defer func() {
+				 if r := recover(); r != nil {
+						 fmt.Println("Recovered in encoder, panic:", r)
+				 }
+		 }()
 		encOpt := &cxpb.EncoderOptions{
-			RequiredAspects: sentAspects,
+			RequiredAspects: sendingAspects,
 			IsCollection:    false,
 			NumNetworks:     1,
 		}
@@ -160,7 +156,7 @@ func sendParams(streamer func(*cxpb.Element) error, params map[string][]string) 
 				panic("Could not send parameter")
 			}
 			sentParametersCounter.With(prometheus.Labels{
-				"name": name,
+				"name":  name,
 				"value": value,
 			}).Inc()
 		}

@@ -1,13 +1,14 @@
 package cxpb
 
 import (
+	"io"
+  "google.golang.org/grpc"
+  "google.golang.org/grpc/codes"
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
-	"io"
-	"fmt"
 )
 
-type ServiceError struct {}
+type ServiceError struct{}
 
 func (s *ServiceError) Error() string { return "" }
 
@@ -68,7 +69,7 @@ func (e *Encoder) encodeNetwork() (errors []*Error) {
 	e.emitMetaData()
 	openFragment := ""
 	currNetwork := e.curr.networkId
-	for (e.curr.err != io.EOF) && (e.curr.networkId == currNetwork) {
+	for (e.curr.err != io.EOF)  && (e.curr.networkId == currNetwork) {
 		if e.curr.aspect != openFragment { //A new fragment is needed
 			if openFragment != "" { //This is not first fragment
 				e.emit("]},")
@@ -76,7 +77,7 @@ func (e *Encoder) encodeNetwork() (errors []*Error) {
 				e.emit(",")
 			}
 			e.emitOpenFragment()
-			openFragment = e.curr.aspect //Set the curren
+			openFragment = e.curr.aspect //Set the current open aspect fragmentkkkkkkkkkkkkkkkkkkkk
 		} else {
 			e.emit(",")
 			e.emitElement()
@@ -136,10 +137,12 @@ func (e *Encoder) fetchNext() *Error {
 	in, err := e.stream()
 	if err != nil {
 		e.curr.err = err
+		if grpc.Code(err) == codes.Unknown {
+			panic("Service errored out")
+		}
 		return nil
 	}
 	name, message := unwrapElement(in)
-	fmt.Println(message)
 	if name == "metadata" {
 		return e.fetchNext()
 	} else if name == "error" {
