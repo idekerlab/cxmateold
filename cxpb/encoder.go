@@ -2,10 +2,11 @@ package cxpb
 
 import (
 	"io"
-  "google.golang.org/grpc"
-  "google.golang.org/grpc/codes"
+
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 )
 
 type ServiceError struct{}
@@ -69,7 +70,7 @@ func (e *Encoder) encodeNetwork() (errors []*Error) {
 	e.emitMetaData()
 	openFragment := ""
 	currNetwork := e.curr.networkId
-	for (e.curr.err != io.EOF)  && (e.curr.networkId == currNetwork) {
+	for (e.curr.err != io.EOF) && (e.curr.networkId == currNetwork) {
 		if e.curr.aspect != openFragment { //A new fragment is needed
 			if openFragment != "" { //This is not first fragment
 				e.emit("]},")
@@ -137,8 +138,8 @@ func (e *Encoder) fetchNext() *Error {
 	in, err := e.stream()
 	if err != nil {
 		e.curr.err = err
-		if grpc.Code(err) == codes.Unknown {
-			panic("Service errored out")
+		if err != io.EOF && grpc.Code(err) == codes.Unknown {
+			panic(err)
 		}
 		return nil
 	}

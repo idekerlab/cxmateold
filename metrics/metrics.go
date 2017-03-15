@@ -34,7 +34,7 @@ func NewGauge(name string, help string, labels []string) *prometheus.GaugeVec {
 
 func Serve() {
 	http.Handle("/metrics", promhttp.Handler())
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":8000", nil))
 }
 
 func Handler() http.Handler {
