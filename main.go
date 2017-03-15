@@ -46,8 +46,8 @@ var (
 	listeningPort    = getenv("LISTENING_PORT", "80")
 	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
 	serverPort       = getenv("SERVICE_PORT", "8080")
-	requiredAspects  = strings.Split(getenv("REQUIRED_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
-	sendingAspects  =  strings.Split(getenv("REQUIRED_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	requiredAspects  = strings.Split(getenv("RECEIVES_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	sendingAspects  =  strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
 )
 
 func getenv(key, fallback string) string {
