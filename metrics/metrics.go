@@ -8,8 +8,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-type Labels prometheus.Labels
-
 func NewCounter(name string, help string, labels []string) *prometheus.CounterVec {
 	counter := prometheus.NewCounterVec(
 		prometheus.CounterOpts{
