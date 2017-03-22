@@ -70,24 +70,36 @@ func (e *Encoder) encodeNetwork() (errors []*Error) {
 	e.emitMetaData()
 	openFragment := ""
 	currNetwork := e.curr.networkId
+	fragmentOpen := false
+	firstFragment := true
 	for (e.curr.err != io.EOF) && (e.curr.networkId == currNetwork) {
-		if e.curr.aspect != openFragment { //A new fragment is needed
-			if openFragment != "" { //This is not first fragment
-				e.emit("]},")
+		if e.curr.err == nil {
+			if firstFragment {
+				e.emit(",") //Put a , after the metadata only if there's going to be a fragment following it
+				firstFragment = false
+			}
+			if e.curr.aspect != openFragment { //A new fragment is needed
+				if openFragment != "" { //This is not first fragment
+					e.emit("]},")
+					fragmentOpen = false
+				}
+				e.emitOpenFragment()
+				fragmentOpen = true
+				openFragment = e.curr.aspect //Set the current open aspect fragment
 			} else {
 				e.emit(",")
+				e.emitElement()
 			}
-			e.emitOpenFragment()
-			openFragment = e.curr.aspect //Set the current open aspect fragmentkkkkkkkkkkkkkkkkkkkk
-		} else {
-			e.emit(",")
-			e.emitElement()
 		}
 		if err := e.fetchNext(); err != nil {
 			errors = append(errors, err)
 		}
 	}
-	e.emit("]}]")
+	if fragmentOpen {
+		e.emit("]}]")
+	} else {
+		e.emit("]")
+	}
 	return errors
 }
 

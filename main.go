@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"strings"
+	"sync"
 
 	"github.com/ericsage/cxmate/cxpb"
 	"github.com/ericsage/cxmate/metrics"
@@ -47,7 +47,7 @@ var (
 	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
 	serverPort       = getenv("SERVICE_PORT", "8080")
 	requiredAspects  = strings.Split(getenv("RECEIVES_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
-	sendingAspects  =  strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	sendingAspects   = strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
 )
 
 func getenv(key, fallback string) string {
@@ -65,7 +65,14 @@ func main() {
 		Addr:    address,
 		Handler: http.HandlerFunc(handler),
 	}
-	fmt.Println("Listening on", address)
+	fmt.Println("Config:")
+	fmt.Println("Listening at address:", listeningAddress)
+	fmt.Println("Listening on port:", listeningPort)
+	fmt.Println("Proxying for service at address", serverAddress)
+	fmt.Println("Proxying for service on port", serverPort)
+	fmt.Println("Receiving aspects:", requiredAspects)
+	fmt.Println("Sending aspects:", sendingAspects)
+	fmt.Println("Now listening...")
 	go metrics.Serve()
 	log.Fatal(s.ListenAndServe())
 }
@@ -109,10 +116,10 @@ func streamNetwork(in io.Reader, out io.Writer, params map[string][]string) {
 	go func() {
 		defer wg.Done()
 		defer func() {
-				 if r := recover(); r != nil {
-						 fmt.Println("Recovered in encoder, panic:", r)
-				 }
-		 }()
+			if r := recover(); r != nil {
+				fmt.Println("Recovered in encoder, panic:", r)
+			}
+		}()
 		encOpt := &cxpb.EncoderOptions{
 			RequiredAspects: sendingAspects,
 			IsCollection:    false,

@@ -3,7 +3,8 @@ package cxpb
 import (
 	"encoding/json"
 	"io"
-  "strconv"
+	"strconv"
+
 	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/proto"
 )
@@ -75,12 +76,12 @@ func (dec *Decoder) Decode() {
 func (dec *Decoder) decodeNetwork(networkNum int64) *Error {
 	d := dec.dec
 	num := strconv.FormatInt(networkNum, 10)
-	err := dec.delim('[', "opening bracket [ of unparsed network " + num) //Opeing network [
+	err := dec.delim('[', "opening bracket [ of unparsed network "+num) //Opeing network [
 	if err != nil {
 		return err
 	}
 	for d.More() { //Iterate over every fragment in the network
-		err = dec.delim('{', "opening brace { of an unparsed aspect fragment in network " + num) //Opening fragment {
+		err = dec.delim('{', "opening brace { of an unparsed aspect fragment in network "+num) //Opening fragment {
 		if err != nil {
 			return err
 		}
@@ -88,7 +89,7 @@ func (dec *Decoder) decodeNetwork(networkNum int64) *Error {
 		if err != nil {
 			return err
 		}
-		err = dec.delim('[', "opening bracket [ of an unparsed element list in netowrk" + num + ".") //Opening element [
+		err = dec.delim('[', "opening bracket [ of an unparsed element list in netowrk"+num+".") //Opening element [
 		if err != nil {
 			return err
 		}
@@ -103,16 +104,16 @@ func (dec *Decoder) decodeNetwork(networkNum int64) *Error {
 				d.Decode(&v)
 			}
 		}
-		err = dec.delim(']', "closing bracket ] of a parsed fragment "+ fragmentName + " element list in network " + num + ".") //Closing element ]
+		err = dec.delim(']', "closing bracket ] of a parsed fragment "+fragmentName+" element list in network "+num+".") //Closing element ]
 		if err != nil {
 			return err
 		}
-		err = dec.delim('}', "closing brace } of a parsed fragment " + fragmentName + " in network " + num + ".") //Closing fragment }
+		err = dec.delim('}', "closing brace } of a parsed fragment "+fragmentName+" in network "+num+".") //Closing fragment }
 		if err != nil {
 			return err
 		}
 	}
-	err = dec.delim(']', "closing bracket ] of a parsed network " + num) //Closing network ]
+	err = dec.delim(']', "closing bracket ] of a parsed network "+num) //Closing network ]
 	if err != nil {
 		return err
 	}
