@@ -1,22 +1,48 @@
-# cxmate
+cxmate
+======
 
-You can set the address and port that symbiont listens on with environment variables:
+cxmate is a RESTful network API proxy service for network algorithms. If you're interested in turning a network algorithm into a robust web service, cxmate can drastically reduce the investment of time and effort required by providing the following key features:
 
-```
-export LISTENING_ADDRESS = "0.0.0.0"
-export LISTENING_PORT = "80"
-```
+- **Streaming support for CX, an extensible aspect oriented network network interchange format**<br>
+  CX supports steaming of arbitrarily large networks, and is well suited for encoding rich networks through the use of aspects. cxmate reads and writes streams of CX, allowing high throughput with lower memory consumption. Your service need not know the exact details of CX to take advantage of its power and flexibility. cxmate supports one-to-one, one-to-many, and many-to-many network algorithms. You decide how many networks cxmate will receive and send.
+  
+- **Work with native objects in your language of choice instead of HTTP request and responses**<br>
+  cxmate provides an efficient translation between the CX interchange format and objects native to the proxied service. By the time cxmate calls your service, your code will receive a stream of easy to use element objects containing network pieces, algorithm parameters, and formatted errors to work with. cxmate only expects a stream of native objects in return. Never work with raw HTTP again.
+  
+- **A fully RESTful JSON HTTP interface managed by cxmate on behalf of your service**<br>
+  Any service proxied by cxmate need not write any HTTP handlers, URL parsers, or deal with any of the boilerplate associated with creating a RESTful web service. Clients will have full access to this popular method of interfacing with your service through cxmate, allowing you to focus on writing and maintaining service logic instead of interfaces.
+  
+- **Algorithm parameters and error handling made easy**<br>
+  When cxmate receives a request, query string parameters are automatically translated to key/value elements and streamed to your service like any other object. Any errors detected by cxmate while parsing the incoming network and parameters will also be turned into error objects your service can then decide to send back to the client, handle internally, or ignore.
+  
+- **Service insights via automated metrics gathering and logging**<br>
+  cxmate exposes a plethora of useful statistics about itself and the proxied service via its RESTful HTTP API, allowing service authors to monitor the health and usage of their service over time.  
+ 
+ cxmate is a subproject of Cytoscape and the Ideker Lab at the University of California, San Diego. cxmate greatly decreases the time bioinformaticians, computer scientists, and researchers from other disciplines spend writing code, allowing them to focus on their algorithms and providing biological value to research community. cxmate also decreases the time spent creating services for features used by tens of thousands of Cytoscape users every day.
 
-You can set the address and port of the proxied biological service in the same way:
+Installation
+------------
 
-```
-export SERVICE_ADDRESS = "127.0.0.1"
-export SERVICE_PORT = "8080"
-```
+While we recommend eventually running cxmate and your service in Docker containers for maximum portability and deployability on the Cytoscape Cyberinfrastructure, we also precompile cxmate binaries for popular platforms for testing and development:
 
-You can set the aspects cxmate will forward and accept from the service like this:
+- Download a precompiled binary for your platform [here](https://github.com/ericsage/cxmate/releases)
+- Run cxmate in a docker container with the [official Docker Hub image](https://hub.docker.com/r/ericsage/cxmate/)
 
-```
-export RECEIVES_ASPECTS="edges,nodes"
-export SENDS_ASPECTS="nodeAttributes"
-```
+Getting Started
+---------------
+
+cxmate works with a number of popular programming languages. Currently, our official tutorial walks through building a cxmate proxied service with Python. If you're interested in using cxmate with a different language, please [contact us via email](eric.david.sage@gmail.com)! We'd love to help support your use case and create a guide for your language.
+
+- The official cxmate Python tutorial
+
+Contributors
+------------
+
+We welcome all contributions via Github pull requests. We also encourage the filing of bugs and features requests via the Github [issue tracker](https://github.com/ericsage/cxmate/issues/new). For general questions please [send us an email](eric.david.sage@gmail.com).
+
+License
+-------
+
+cxmate is MIT licensed and a product of the [Cytoscape Consortium](http://www.cytoscapeconsortium.org).
+
+Please see the [License](https://github.com/ericsage/cxmate/blob/master/LICENSE) file for details.
