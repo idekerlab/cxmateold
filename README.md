@@ -33,7 +33,7 @@ Getting Started
 
 cxmate works with a number of popular programming languages. Currently, our official tutorial walks through building a cxmate proxied service with Python. If you're interested in using cxmate with a different language, please [contact us via email](eric.david.sage@gmail.com)! We'd love to help support your use case and create a guide for your language.
 
-- The official cxmate Python tutorial
+- The official cxmate [Python tutorial](https://github.com/ericsage/cxmate/wiki/Python-tutorial)
 
 Contributors
 ------------
