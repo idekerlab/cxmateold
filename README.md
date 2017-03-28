@@ -35,6 +35,41 @@ cxmate works with a number of popular programming languages. Currently, our offi
 
 - The official cxmate [Python tutorial](https://github.com/ericsage/cxmate/wiki/Python-tutorial)
 
+Configuration
+-------------
+All configuration is done through environment variables that cxmate reads once on startup. Once started, cxmate will print out the read values for easy debugging. The supported configuration parameters are as follows:
+
+```
+//cxmate's address
+LISTENING_ADDRESS        //Default 0.0.0.0
+//cxmate's port
+LISTENING_PORT          //Default 80
+//The address of the service cxmate will proxy
+//SERVICE_ADDRESS       //Default 127.0.0.1
+//The port of the service cxmate will proxy
+//SERVICE_PORT          //Default 8080
+//Will cxmate receive more than one network on behalf of this service?
+//RECEIVES_COLLECTION   //Default false
+//ONLY ACTIVE IF RECIEVES_COLLECTION IS TRUE, how many networks will cxmate receive?
+//EXPECTED_NUM_NETWORKS //Default 1
+//What aspects from the CX should cxmate pass to the service?
+//RECEIVES_ASPECTS     //No Default, MUST BE SET, should be a commma seperated list of aspect names
+//Will cxmate send more than one network to the client?
+//SENDS_COLLECTION     //Default false
+//ONLY ACTIVE IF SENDS_COLLECTION IS TRUE, how many networks will cxmate send?
+//SENDS_NUM_NETWORKS   //Default 1
+//What aspects from the CX should cxmate forward to the client?
+//SENDS_ASPECTS        //No Default, MUST BE SET, should be a comma seperated list of aspect names
+```
+
+Note that `RECEIVES_ASPECTS` and `SENDS_ASPECTS` must be set or the behaviour of cxmate will be unpredictable. You should consider what aspects your service and clients expect, and set them accordingly, which will allow cxmate to function properly.
+
+cxmate currently supports the following aspects for sending and receiving:
+
+```nodes edges nodeAttributes edgeAttributes networkAttributes cartesianLayout```
+
+You do not need to declare errors or parameters as aspects, they are always available in every service.
+
 Contributors
 ------------
 

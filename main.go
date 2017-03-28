@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/ericsage/cxmate/cxpb"
@@ -43,16 +43,16 @@ var (
 )
 
 var (
-	listeningAddress = getenv("LISTENING_ADDRESS", "0.0.0.0")
-	listeningPort    = getenv("LISTENING_PORT", "80")
-	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
-	serverPort       = getenv("SERVICE_PORT", "8080")
-	requiresCollection, _ = stringconv.ParseBool(getenv("RECEIVES_COLLECTION", "false"))
-	requiredNumNetworks, _ = stringconv.ParseInt(getenv("EXPECTED_NUM_NETWORKS", "1"))
-	requiredAspects  = strings.Split(getenv("RECEIVES_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
-	sendsCollection, _ = stringconv.ParseBool(getenv("SENDS_COLLECTION", "false"))
-	sendNumNetworks, _ = stringconv.ParseInt(getenv("SENDS_NUM_NETWORKS", "1"))
-	sendingAspects   = strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	listeningAddress       = getenv("LISTENING_ADDRESS", "0.0.0.0")
+	listeningPort          = getenv("LISTENING_PORT", "80")
+	serverAddress          = getenv("SERVICE_ADDRESS", "127.0.0.1")
+	serverPort             = getenv("SERVICE_PORT", "8080")
+	requiresCollection, _  = strconv.ParseBool(getenv("RECEIVES_COLLECTION", "false"))
+	requiredNumNetworks, _ = strconv.ParseInt(getenv("EXPECTED_NUM_NETWORKS", "1"), 10, 64)
+	requiredAspects        = strings.Split(getenv("RECEIVES_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	sendsCollection, _     = strconv.ParseBool(getenv("SENDS_COLLECTION", "false"))
+	sendNumNetworks, _     = strconv.ParseInt(getenv("SENDS_NUM_NETWORKS", "1"), 10, 64)
+	sendingAspects         = strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
 )
 
 func getenv(key, fallback string) string {
@@ -75,7 +75,11 @@ func main() {
 	fmt.Println("Listening on port:", listeningPort)
 	fmt.Println("Proxying for service at address", serverAddress)
 	fmt.Println("Proxying for service on port", serverPort)
+	fmt.Println("Receiving a collection:", requiresCollection)
+	fmt.Println("Receives", requiredNumNetworks, "network(s)")
 	fmt.Println("Receiving aspects:", requiredAspects)
+	fmt.Println("Sending a collection:", sendsCollection)
+	fmt.Println("Sends", sendNumNetworks, "network(s)")
 	fmt.Println("Sending aspects:", sendingAspects)
 	fmt.Println("Now listening...")
 	go metrics.Serve()
