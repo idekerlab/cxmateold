@@ -41,7 +41,7 @@ All configuration is done through environment variables that cxmate reads once o
 
 ```
 //cxmate's address
-LISTENING_ADDRESS        //Default 0.0.0.0
+LISTENING_ADDRESS       //Default 0.0.0.0
 //cxmate's port
 LISTENING_PORT          //Default 80
 //The address of the service cxmate will proxy
