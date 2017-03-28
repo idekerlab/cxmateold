@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"strconv"
 	"sync"
 
 	"github.com/ericsage/cxmate/cxpb"
@@ -46,7 +47,11 @@ var (
 	listeningPort    = getenv("LISTENING_PORT", "80")
 	serverAddress    = getenv("SERVICE_ADDRESS", "127.0.0.1")
 	serverPort       = getenv("SERVICE_PORT", "8080")
+	requiresCollection, _ = stringconv.ParseBool(getenv("RECEIVES_COLLECTION", "false"))
+	requiredNumNetworks, _ = stringconv.ParseInt(getenv("EXPECTED_NUM_NETWORKS", "1"))
 	requiredAspects  = strings.Split(getenv("RECEIVES_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
+	sendsCollection, _ = stringconv.ParseBool(getenv("SENDS_COLLECTION", "false"))
+	sendNumNetworks, _ = stringconv.ParseInt(getenv("SENDS_NUM_NETWORKS", "1"))
 	sendingAspects   = strings.Split(getenv("SENDS_ASPECTS", "edges, nodes, nodeAttributes, edgeAttributes, networkAttributes"), ",")
 )
 
@@ -104,8 +109,8 @@ func streamNetwork(in io.Reader, out io.Writer, params map[string][]string) {
 		defer wg.Done()
 		decOpt := &cxpb.DecoderOptions{
 			RequiredAspects: requiredAspects,
-			IsCollection:    false,
-			NumNetworks:     1,
+			IsCollection:    requiresCollection,
+			NumNetworks:     requiredNumNetworks,
 		}
 		sendParams(stream.Send, params)
 		decoder := cxpb.NewDecoder(in, decOpt, stream.Send)
@@ -122,8 +127,8 @@ func streamNetwork(in io.Reader, out io.Writer, params map[string][]string) {
 		}()
 		encOpt := &cxpb.EncoderOptions{
 			RequiredAspects: sendingAspects,
-			IsCollection:    false,
-			NumNetworks:     1,
+			IsCollection:    sendsCollection,
+			NumNetworks:     sendNumNetworks,
 		}
 		encoder := cxpb.NewEncoder(out, encOpt, stream.Recv)
 		io.WriteString(out, "{\"data\":")
