@@ -4,16 +4,16 @@ cxmate
 cxmate is a RESTful network API proxy service for network algorithms. If you're interested in turning a network algorithm into a robust web service, cxmate can drastically reduce the investment of time and effort required by providing the following key features:
 
 - **Streaming support for CX, an extensible aspect oriented network network interchange format**<br>
-  CX supports steaming of arbitrarily large networks, and is well suited for encoding rich networks through the use of aspects. cxmate reads and writes streams of CX, allowing high throughput with lower memory consumption. Your service need not know the exact details of CX to take advantage of its power and flexibility. cxmate supports one-to-one, one-to-many, and many-to-many network algorithms. You decide how many networks cxmate will receive and send.
+  CX supports steaming of arbitrarily large networks, and is well suited for encoding rich networks through the use of aspects. cxmate reads and writes streams of CX, allowing high throughput with lower memory consumption. Your algorithm need not know the exact details of CX to take advantage of its power and flexibility. cxmate supports one-to-one, one-to-many, and many-to-many network algorithms. You decide how many networks cxmate will receive and send.
   
-- **Work with native objects in your language of choice instead of HTTP request and responses**<br>
-  cxmate provides an efficient translation between the CX interchange format and objects native to the proxied service. By the time cxmate calls your service, your code will receive a stream of easy to use element objects containing network pieces, algorithm parameters, and formatted errors to work with. cxmate only expects a stream of native objects in return. Never work with raw HTTP again.
+- **Work with native objects in your algorithm's language instead of dealing with HTTP request and responses**<br>
+  cxmate provides an efficient translation between the CX interchange format and objects native to your algorithm. By the time cxmate calls your algorithm, your code will receive a stream of easy to use element objects containing network pieces, algorithm parameters, and formatted errors to work with. cxmate only expects a stream of native objects in return. Never work with raw HTTP again.
   
 - **A fully RESTful JSON HTTP interface managed by cxmate on behalf of your service**<br>
-  Any service proxied by cxmate need not write any HTTP handlers, URL parsers, or deal with any of the boilerplate associated with creating a RESTful web service. Clients will have full access to this popular method of interfacing with your service through cxmate, allowing you to focus on writing and maintaining service logic instead of interfaces.
+  Any algorithm proxied by cxmate need not worry about writing HTTP handlers, URL parsers, or dealing with any of the boilerplate associated with creating a RESTful web service. Your clients will have full access to the popular REST method of interfacing with your algorithm through cxmate, allowing you to focus on writing and maintaining algorithm logic instead of service interfaces.
   
 - **Algorithm parameters and error handling made easy**<br>
-  When cxmate receives a request, query string parameters are automatically translated to key/value elements and streamed to your service like any other object. Any errors detected by cxmate while parsing the incoming network and parameters will also be turned into error objects your service can then decide to send back to the client, handle internally, or ignore.
+  When cxmate receives a request, query string parameters are automatically translated to key/value elements and streamed to your algorithm like any other object. Any errors detected by cxmate while parsing the incoming network and parameters will also be turned into error objects your algorithm can then decide to send back to the client, handle internally, or ignore.
   
 - **Service insights via automated metrics gathering and logging**<br>
   cxmate exposes a plethora of useful statistics about itself and the proxied service via its RESTful HTTP API, allowing service authors to monitor the health and usage of their service over time.  
