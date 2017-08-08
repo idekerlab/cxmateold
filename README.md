@@ -1,5 +1,5 @@
 
-[THIS IS A DEPRECATED VERSION. CLICK ME TO GO TO THE NEW CXMATE](https://github.com/cxmate/cxmate)
+[THIS IS A DEPRECATED VERSION. CLICK ME TO GO TO THE NEW CXMATE!](https://github.com/cxmate/cxmate)
 
 cxmate
 ======
